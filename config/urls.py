@@ -12,3 +12,5 @@ urlpatterns = [
     path("accounts/", include("apps.accounts.urls")),
     path("", include("apps.core.urls")),
 ]
+
+handler403 = "apps.core.views.permission_denied_view"
