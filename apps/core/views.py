@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 
@@ -93,6 +94,7 @@ def get_page_context(page_key):
     }
 
 
+@login_required
 def overview(request):
 
     context = get_page_context("overview")
@@ -123,6 +125,7 @@ def overview(request):
     return render(request, "core/overview.html", context)
 
 
+@login_required
 def placeholder(request, page):
 
     context = get_page_context(page)
