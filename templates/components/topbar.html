@@ -1,0 +1,39 @@
+<header class="topbar">
+
+    <div class="breadcrumb">
+        Workspace / {{ page_title }}
+    </div>
+
+    <div class="topbar-actions">
+
+        <span class="environment-label">
+            Development
+        </span>
+
+        <div class="user-profile">
+
+            <div class="avatar">
+                {% if request.user.is_authenticated %}
+                    {{ request.user.username|first|upper }}
+                {% else %}
+                    G
+                {% endif %}
+            </div>
+
+            <span>
+                {% if request.user.is_authenticated %}
+                    {{ request.user.username }}
+                {% else %}
+                    Guest
+                {% endif %}
+            </span>
+
+        </div>
+
+        <a href="{% url 'admin:index' %}" class="admin-link">
+            Admin
+        </a>
+
+    </div>
+
+</header>

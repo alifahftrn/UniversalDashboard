@@ -1,0 +1,15 @@
+{
+    "dataset_id": "00000000-0000-4000-8000-000000000001",
+    "group_by": [
+        "vendor"
+    ],
+    "measures": [
+        {
+            "column": "amount",
+            "op": "sum",
+            "alias": "total"
+        }
+    ],
+    "filters": [],
+    "limit": 100
+}

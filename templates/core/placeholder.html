@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ page_title }} | Universal Dashboard Studio
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <h1>{{ page_title }}</h1>
+
+    <p>{{ description }}</p>
+
+</div>
+
+<section class="panel">
+
+    <div class="empty-state">
+
+        <div class="placeholder-icon">
+            {{ page_icon }}
+        </div>
+
+        <h2>{{ page_title }}</h2>
+
+        <p>This module is currently under development.</p>
+
+        <span class="status-label">
+            {{ owner }}
+        </span>
+
+    </div>
+
+</section>
+
+{% endblock %}

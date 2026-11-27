@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}
+Overview | Universal Dashboard Studio
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <h1>Overview</h1>
+
+    <p>
+        Welcome to Universal Dashboard Studio.
+        Manage your data and build your analytics workspace.
+    </p>
+
+</div>
+
+<div class="stats-grid">
+
+    {% for card in cards %}
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            {{ card.title }}
+        </div>
+
+        <div class="stat-value">
+            {{ card.value }}
+        </div>
+
+        <div class="stat-description">
+            {{ card.description }}
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<section class="panel">
+
+    <div class="panel-heading">
+        <h2>Getting Started</h2>
+        <p>Build your dashboard in four steps.</p>
+    </div>
+
+    <div class="steps-grid">
+
+        <a href="{% url 'core:database-connections' %}"
+           class="step-card">
+            <span>01</span>
+            <h3>Connect Data</h3>
+            <p>Add an external database or data source.</p>
+        </a>
+
+        <a href="{% url 'core:data-sources' %}"
+           class="step-card">
+            <span>02</span>
+            <h3>Extract Data</h3>
+            <p>Store extracted data in the internal database.</p>
+        </a>
+
+        <a href="{% url 'core:data-manager' %}"
+           class="step-card">
+            <span>03</span>
+            <h3>Transform Data</h3>
+            <p>Clean, join and validate your datasets.</p>
+        </a>
+
+        <a href="{% url 'core:visualization-builder' %}"
+           class="step-card">
+            <span>04</span>
+            <h3>Build Visualization</h3>
+            <p>Create charts, KPI cards and dashboards.</p>
+        </a>
+
+    </div>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-heading">
+        <h2>Recent Dashboards</h2>
+    </div>
+
+    <div class="empty-state">
+
+        <h3>Your dashboard workspace</h3>
+
+        <p>
+            Dashboard management will be available
+            after module integration.
+        </p>
+
+        <a href="{% url 'core:my-dashboards' %}"
+           class="button-primary">
+            My Dashboards
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

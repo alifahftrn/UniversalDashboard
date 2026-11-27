@@ -1,0 +1,19 @@
+{
+    "dataset_id": "00000000-0000-4000-8000-000000000001",
+    "version_id": "00000000-0000-4000-8000-000000000002",
+    "status": "validated",
+    "row_count": 3,
+    "last_extracted_at": "2026-11-27T00:00:00Z",
+    "columns": [
+        {
+            "key": "vendor",
+            "type": "string",
+            "nullable": false
+        },
+        {
+            "key": "amount",
+            "type": "decimal",
+            "nullable": false
+        }
+    ]
+}

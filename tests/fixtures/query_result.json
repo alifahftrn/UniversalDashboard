@@ -1,0 +1,19 @@
+{
+    "version_id": "00000000-0000-4000-8000-000000000002",
+    "columns": [
+        {
+            "key": "vendor",
+            "type": "string"
+        },
+        {
+            "key": "total",
+            "type": "decimal"
+        }
+    ],
+    "rows": [
+        ["A", "500000.00"],
+        ["B", "1200000.00"]
+    ],
+    "truncated": false,
+    "last_extracted_at": "2026-11-27T00:00:00Z"
+}

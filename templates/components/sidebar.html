@@ -1,0 +1,43 @@
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-logo">UD</div>
+
+        <div class="brand-name">
+            Universal Dashboard
+            <span>Studio</span>
+        </div>
+
+    </div>
+
+    <div class="sidebar-label">
+        WORKSPACE
+    </div>
+
+    <nav class="sidebar-nav">
+
+        {% for item in navigation %}
+
+        <a href="{% url item.url_name %}"
+           class="nav-link {% if active_page == item.key %}active{% endif %}"
+           {% if active_page == item.key %}aria-current="page"{% endif %}>
+
+            <span class="nav-icon">
+                {{ item.icon }}
+            </span>
+
+            <span>{{ item.title }}</span>
+
+        </a>
+
+        {% endfor %}
+
+    </nav>
+
+    <div class="sidebar-footer">
+        Universal Dashboard Studio
+        <small>Development Version</small>
+    </div>
+
+</aside>
