@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/user-management.css' %}">
+
+<section class="um-container">
+
+    <div class="um-heading">
+        <h1>User Management</h1>
+        <p>Manage application users, roles and account status.</p>
+    </div>
+
+    <div class="um-statistics">
+
+        <div class="um-card">
+            <span>Total Users</span>
+            <strong>{{ statistics.total }}</strong>
+        </div>
+
+        <div class="um-card">
+            <span>Active Users</span>
+            <strong class="um-active-text">
+                {{ statistics.active }}
+            </strong>
+        </div>
+
+        <div class="um-card">
+            <span>Inactive Users</span>
+            <strong>{{ statistics.inactive }}</strong>
+        </div>
+
+    </div>
+
+    <form method="get" class="um-filter">
+
+        <input
+            type="search"
+            name="q"
+            value="{{ search }}"
+            placeholder="Search users..."
+            aria-label="Search users"
+        >
+
+        <select name="role" aria-label="Filter by role">
+
+            <option value="">All Roles</option>
+
+            {% for role in role_choices %}
+
+                <option
+                    value="{{ role }}"
+                    {% if role_filter == role %}selected{% endif %}
+                >
+                    {{ role }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        <select name="status" aria-label="Filter by status">
+
+            <option value="">All Status</option>
+
+            <option
+                value="active"
+                {% if status_filter == "active" %}selected{% endif %}
+            >
+                Active
+            </option>
+
+            <option
+                value="inactive"
+                {% if status_filter == "inactive" %}selected{% endif %}
+            >
+                Inactive
+            </option>
+
+        </select>
+
+        <button type="submit" class="um-button">
+            Filter
+        </button>
+
+        <a
+            href="{% url 'core:settings' %}"
+            class="um-button um-button-secondary"
+        >
+            Reset
+        </a>
+
+    </form>
+
+    <div class="um-table-container">
+
+        <table class="um-table">
+
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Date Joined</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for account in page_obj %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ account.username }}</strong>
+
+                            {% if account.is_superuser %}
+                                <small>Superuser</small>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ account.email|default:"-" }}
+                        </td>
+
+                        <td>
+                            <span class="um-role um-role-{{ account.assigned_role|lower }}">
+                                {{ account.assigned_role }}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            {% if account.is_active %}
+
+                                <span class="um-status um-status-active">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="um-status um-status-inactive">
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ account.date_joined|date:"d M Y" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="5" class="um-empty">
+                            No users found.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <div class="um-pagination">
+
+            <span>
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} users
+            </span>
+
+            <div class="um-pagination-links">
+
+                {% if page_obj.has_previous %}
+
+                    <a href="{% querystring page=page_obj.previous_page_number %}">
+                        Previous
+                    </a>
+
+                {% endif %}
+
+                <span>
+                    Page {{ page_obj.number }}
+                    of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+
+                    <a href="{% querystring page=page_obj.next_page_number %}">
+                        Next
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
