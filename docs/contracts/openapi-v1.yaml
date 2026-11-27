@@ -1,0 +1,1200 @@
+openapi: 3.1.0
+info:
+  title: Universal Dashboard Studio API
+  version: 1.0.0
+  description: Implementation baseline from RFC v2.3 and existing contracts. Endpoints are planned, not deployed.
+    New payload details require producer/consumer compatibility review before merge. Session + CSRF; object
+    access enforced server-side.
+servers:
+- url: /api/v1
+paths:
+  /datasets/:
+    get:
+      operationId: listDatasets
+      tags:
+      - PIC 3 - Datasets
+      summary: List authorized active validated datasets
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          description: List authorized active validated datasets
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetList'
+              example:
+                count: 1
+                page: 1
+                page_size: 20
+                results:
+                - dataset_id: 00000000-0000-4000-8000-000000000001
+                  version_id: 00000000-0000-4000-8000-000000000002
+                  status: validated
+                  row_count: 3
+                  last_extracted_at: '2026-11-27T00:00:00Z'
+                  columns:
+                  - key: vendor
+                    type: string
+                    nullable: false
+                  - key: amount
+                    type: decimal
+                    nullable: false
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+  /extractions/:
+    post:
+      operationId: createExtraction
+      tags:
+      - PIC 2 - Extraction
+      summary: Queue an authorized full extraction
+      security:
+      - sessionAuth: []
+        csrfToken: []
+      responses:
+        '202':
+          description: Queue an authorized full extraction
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionAccepted'
+              example:
+                job_id: 00000000-0000-4000-8000-000000000010
+                status: queued
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+        '409':
+          $ref: '#/components/responses/HTTP409'
+        '422':
+          $ref: '#/components/responses/HTTP422'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractionRequest'
+            example:
+              source_id: 00000000-0000-4000-8000-000000000011
+              dataset_id: 00000000-0000-4000-8000-000000000001
+  /jobs/{id}/:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    get:
+      operationId: getJob
+      tags:
+      - PIC 2 - Extraction
+      summary: Read authorized JobRun status
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          description: Read authorized JobRun status
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobRun'
+              example:
+                job_id: 00000000-0000-4000-8000-000000000010
+                dataset_id: 00000000-0000-4000-8000-000000000001
+                status: success
+                row_count: 5
+                error_code: null
+                created_at: '2026-11-27T00:00:00Z'
+                started_at: '2026-11-27T00:00:00Z'
+                finished_at: '2026-11-27T00:00:03Z'
+                version_id: 00000000-0000-4000-8000-000000000002
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+  /queries/preview/:
+    post:
+      operationId: previewQuery
+      tags:
+      - PIC 3 - Queries
+      summary: Preview authorized internal aggregated query
+      security:
+      - sessionAuth: []
+        csrfToken: []
+      responses:
+        '200':
+          description: Preview authorized internal aggregated query
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResult'
+              example:
+                version_id: 00000000-0000-4000-8000-000000000002
+                columns:
+                - key: vendor
+                  type: string
+                - key: total
+                  type: decimal
+                rows:
+                - - A
+                  - '500000.00'
+                - - B
+                  - '1200000.00'
+                truncated: false
+                last_extracted_at: '2026-11-27T00:00:00Z'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+        '409':
+          $ref: '#/components/responses/HTTP409'
+        '422':
+          $ref: '#/components/responses/HTTP422'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryPreviewRequest'
+            example:
+              dataset_id: 00000000-0000-4000-8000-000000000001
+              group_by:
+              - vendor
+              measures:
+              - column: amount
+                op: sum
+                alias: total
+              filters: []
+              limit: 100
+  /dashboards/:
+    post:
+      operationId: createDashboard
+      tags:
+      - PIC 4 - Dashboards
+      summary: Create authorized dashboard
+      security:
+      - sessionAuth: []
+        csrfToken: []
+      responses:
+        '201':
+          description: Create authorized dashboard
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+              example:
+                dashboard_id: 00000000-0000-4000-8000-000000000012
+                name: Sales Dashboard
+                widgets:
+                - type: bar
+                  dataset_id: 00000000-0000-4000-8000-000000000001
+                  query_config:
+                    group_by:
+                    - vendor
+                    measures:
+                    - column: amount
+                      op: sum
+                      alias: total
+                    filters: []
+                    limit: 100
+                  binding:
+                    x: vendor
+                    y: total
+                  layout:
+                    x: 0
+                    y: 0
+                    w: 6
+                    h: 4
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+        '409':
+          $ref: '#/components/responses/HTTP409'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardCreate'
+            example:
+              name: Sales Dashboard
+              widgets:
+              - type: bar
+                dataset_id: 00000000-0000-4000-8000-000000000001
+                query_config:
+                  group_by:
+                  - vendor
+                  measures:
+                  - column: amount
+                    op: sum
+                    alias: total
+                  filters: []
+                  limit: 100
+                binding:
+                  x: vendor
+                  y: total
+                layout:
+                  x: 0
+                  y: 0
+                  w: 6
+                  h: 4
+  /dashboards/{id}/:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    get:
+      operationId: getDashboard
+      tags:
+      - PIC 4 - Dashboards
+      summary: Read authorized dashboard
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          description: Read authorized dashboard
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+              example:
+                dashboard_id: 00000000-0000-4000-8000-000000000012
+                name: Sales Dashboard
+                widgets:
+                - type: bar
+                  dataset_id: 00000000-0000-4000-8000-000000000001
+                  query_config:
+                    group_by:
+                    - vendor
+                    measures:
+                    - column: amount
+                      op: sum
+                      alias: total
+                    filters: []
+                    limit: 100
+                  binding:
+                    x: vendor
+                    y: total
+                  layout:
+                    x: 0
+                    y: 0
+                    w: 6
+                    h: 4
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+    patch:
+      operationId: patchDashboard
+      tags:
+      - PIC 4 - Dashboards
+      summary: Update authorized dashboard
+      security:
+      - sessionAuth: []
+        csrfToken: []
+      responses:
+        '200':
+          description: Update authorized dashboard
+          headers:
+            X-Request-ID:
+              description: Server-generated request UUID; same as error.request_id when applicable.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+              example:
+                dashboard_id: 00000000-0000-4000-8000-000000000012
+                name: Sales Dashboard
+                widgets:
+                - type: bar
+                  dataset_id: 00000000-0000-4000-8000-000000000001
+                  query_config:
+                    group_by:
+                    - vendor
+                    measures:
+                    - column: amount
+                      op: sum
+                      alias: total
+                    filters: []
+                    limit: 100
+                  binding:
+                    x: vendor
+                    y: total
+                  layout:
+                    x: 0
+                    y: 0
+                    w: 6
+                    h: 4
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '405':
+          $ref: '#/components/responses/HTTP405'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+        '500':
+          $ref: '#/components/responses/HTTP500'
+        '503':
+          $ref: '#/components/responses/HTTP503'
+        '409':
+          $ref: '#/components/responses/HTTP409'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardPatch'
+            example:
+              name: Sales Overview
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+      description: Django authenticated session; default cookie name.
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRFToken
+      description: Django CSRF token for POST/PATCH, including query preview.
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          properties:
+            code:
+              type: string
+              pattern: ^[A-Z][A-Z0-9_]*$
+            message:
+              type: string
+              minLength: 1
+            request_id:
+              type: string
+              format: uuid
+          required:
+          - code
+          - message
+          - request_id
+      required:
+      - error
+    DatasetColumn:
+      type: object
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 128
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - decimal
+          - float
+          - boolean
+          - date
+          - datetime
+        nullable:
+          type: boolean
+      required:
+      - key
+      - type
+      - nullable
+    DatasetMetadata:
+      type: object
+      additionalProperties: false
+      properties:
+        dataset_id:
+          type: string
+          format: uuid
+        version_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - validated
+        row_count:
+          type: integer
+          minimum: 0
+        last_extracted_at:
+          type: string
+          format: date-time
+          pattern: Z$
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetColumn'
+      required:
+      - dataset_id
+      - version_id
+      - status
+      - row_count
+      - last_extracted_at
+      - columns
+    DatasetList:
+      type: object
+      additionalProperties: false
+      properties:
+        count:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetMetadata'
+      required:
+      - count
+      - page
+      - page_size
+      - results
+    ExtractionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        dataset_id:
+          type: string
+          format: uuid
+      required:
+      - source_id
+      - dataset_id
+    ExtractionAccepted:
+      type: object
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - queued
+      required:
+      - job_id
+      - status
+    JobRun:
+      type: object
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        dataset_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - success
+          - failed
+        row_count:
+          type: integer
+          minimum: 0
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+        created_at:
+          type: string
+          format: date-time
+          pattern: Z$
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: Z$
+          - type: 'null'
+        finished_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: Z$
+          - type: 'null'
+        version_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+      required:
+      - job_id
+      - dataset_id
+      - status
+      - row_count
+      - error_code
+      - created_at
+      - started_at
+      - finished_at
+      - version_id
+    Measure:
+      type: object
+      additionalProperties: false
+      properties:
+        column:
+          type: string
+          minLength: 1
+          maxLength: 128
+        op:
+          type: string
+          enum:
+          - sum
+          - avg
+          - count
+          - count_distinct
+          - min
+          - max
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - column
+      - op
+      - alias
+    Filter:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          column:
+            type: string
+            minLength: 1
+            maxLength: 128
+          op:
+            type: string
+            enum:
+            - eq
+            - ne
+            - gt
+            - gte
+            - lt
+            - lte
+          value:
+            type:
+            - string
+            - number
+            - boolean
+        required:
+        - column
+        - op
+        - value
+      - type: object
+        additionalProperties: false
+        properties:
+          column:
+            type: string
+            minLength: 1
+            maxLength: 128
+          op:
+            type: string
+            enum:
+            - in
+          value:
+            type: array
+            items:
+              type:
+              - string
+              - number
+              - boolean
+            minItems: 1
+        required:
+        - column
+        - op
+        - value
+      - type: object
+        additionalProperties: false
+        properties:
+          column:
+            type: string
+            minLength: 1
+            maxLength: 128
+          op:
+            type: string
+            enum:
+            - is_null
+            - is_not_null
+        required:
+        - column
+        - op
+    QueryConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        group_by:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 128
+          uniqueItems: true
+        measures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Measure'
+          minItems: 1
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 10000
+          default: 100
+      required:
+      - group_by
+      - measures
+      - filters
+    QueryPreviewRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        dataset_id:
+          type: string
+          format: uuid
+        version_id:
+          type: string
+          format: uuid
+        group_by:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 128
+          uniqueItems: true
+        measures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Measure'
+          minItems: 1
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 10000
+          default: 100
+      required:
+      - dataset_id
+      - group_by
+      - measures
+      - filters
+    QueryColumn:
+      type: object
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 128
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - decimal
+          - float
+          - boolean
+          - date
+          - datetime
+      required:
+      - key
+      - type
+    QueryResult:
+      type: object
+      additionalProperties: false
+      properties:
+        version_id:
+          type: string
+          format: uuid
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueryColumn'
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+        truncated:
+          type: boolean
+        last_extracted_at:
+          type: string
+          format: date-time
+          pattern: Z$
+      required:
+      - version_id
+      - columns
+      - rows
+      - truncated
+      - last_extracted_at
+      description: Rows are arrays, positional to columns. Each row length and value type must match the metadata.
+        Decimal values are strings; null permitted for missing values. Semantics enforced by service tests.
+    Widget:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - bar
+          - line
+          - pie
+          - table
+          - kpi
+        dataset_id:
+          type: string
+          format: uuid
+        query_config:
+          $ref: '#/components/schemas/QueryConfig'
+        binding:
+          type: object
+          additionalProperties: false
+          properties:
+            x:
+              anyOf:
+              - type: string
+                minLength: 1
+                maxLength: 128
+              - type: 'null'
+            y:
+              anyOf:
+              - type: string
+                minLength: 1
+                maxLength: 128
+              - type: 'null'
+          required:
+          - x
+          - y
+        layout:
+          type: object
+          additionalProperties: false
+          properties:
+            x:
+              type: integer
+              minimum: 0
+            y:
+              type: integer
+              minimum: 0
+            w:
+              type: integer
+              minimum: 1
+            h:
+              type: integer
+              minimum: 1
+          required:
+          - x
+          - y
+          - w
+          - h
+      required:
+      - type
+      - dataset_id
+      - query_config
+      - binding
+      - layout
+    DashboardCreate:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Widget'
+          default: []
+      required:
+      - name
+    DashboardPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Widget'
+      required: []
+      minProperties: 1
+    Dashboard:
+      type: object
+      additionalProperties: false
+      properties:
+        dashboard_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Widget'
+      required:
+      - dashboard_id
+      - name
+      - widgets
+  responses:
+    HTTP400:
+      description: Invalid request
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: INVALID_REQUEST
+              message: Invalid request
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP401:
+      description: Authentication required
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: AUTHENTICATION_REQUIRED
+              message: Authentication required
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP403:
+      description: Forbidden or CSRF rejected
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: PERMISSION_DENIED
+              message: Forbidden or CSRF rejected
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP404:
+      description: Resource unavailable
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource unavailable
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP405:
+      description: Method not allowed
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        Allow:
+          required: true
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: METHOD_NOT_ALLOWED
+              message: Method not allowed
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP409:
+      description: Conflict
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: VERSION_CONFLICT
+              message: Conflict
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP422:
+      description: Processing validation failed
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: VALIDATION_FAILED
+              message: Processing validation failed
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP429:
+      description: Rate limit
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        Retry-After:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: RATE_LIMITED
+              message: Rate limit
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP500:
+      description: Internal error
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: Internal error
+              request_id: 00000000-0000-4000-8000-000000000003
+    HTTP503:
+      description: Service unavailable
+      headers:
+        X-Request-ID:
+          description: Server-generated request UUID; same as error.request_id when applicable.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: SERVICE_UNAVAILABLE
+              message: Service unavailable
+              request_id: 00000000-0000-4000-8000-000000000003
