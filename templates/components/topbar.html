@@ -10,29 +10,43 @@
             Development
         </span>
 
+        {% if request.user.is_authenticated %}
+
         <div class="user-profile">
 
             <div class="avatar">
-                {% if request.user.is_authenticated %}
-                    {{ request.user.username|first|upper }}
-                {% else %}
-                    G
-                {% endif %}
+                {{ request.user.username|first|upper }}
             </div>
 
             <span>
-                {% if request.user.is_authenticated %}
-                    {{ request.user.username }}
-                {% else %}
-                    Guest
-                {% endif %}
+                {{ request.user.username }}
             </span>
 
         </div>
 
+        {% if request.user.is_staff %}
+
         <a href="{% url 'admin:index' %}" class="admin-link">
             Admin
         </a>
+
+        {% endif %}
+
+        <form
+            method="post"
+            action="{% url 'accounts:logout' %}"
+            class="logout-form"
+        >
+
+            {% csrf_token %}
+
+            <button type="submit" class="logout-button">
+                Logout
+            </button>
+
+        </form>
+
+        {% endif %}
 
     </div>
 

@@ -168,5 +168,16 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Custom User Model
 AUTH_USER_MODEL = "accounts.User"
+
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "core:overview"
+LOGOUT_REDIRECT_URL = "accounts:login"
+
+SESSION_COOKIE_AGE = 60 * 60 * 8
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = False
+
+CSRF_COOKIE_SAMESITE = "Lax"

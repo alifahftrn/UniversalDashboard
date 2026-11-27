@@ -438,3 +438,29 @@ a:focus-visible {
         grid-template-columns: 1fr;
     }
 }
+
+.logout-form {
+    margin: 0;
+}
+
+.logout-button {
+    padding: 8px 12px;
+    background: white;
+    color: #475569;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.logout-button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
