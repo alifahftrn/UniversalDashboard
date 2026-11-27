@@ -1,0 +1,113 @@
+name: Universal Dashboard Studio CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+
+  pull_request:
+    branches:
+      - main
+      - develop
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  django-check:
+    name: Django Backend Check
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:18
+
+        env:
+          POSTGRES_DB: universal_dashboard_db
+          POSTGRES_USER: uds_app
+          POSTGRES_PASSWORD: ci_test_password
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U uds_app -d universal_dashboard_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      DJANGO_SECRET_KEY: ci-only-not-for-production-secret-key
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+
+      DB_NAME: universal_dashboard_db
+      DB_USER: uds_app
+      DB_PASSWORD: ci_test_password
+      DB_HOST: 127.0.0.1
+      DB_PORT: "5432"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+          cache: "pip"
+
+      - name: Check Python version
+        run: python --version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Check dependencies
+        run: python -m pip check
+
+      - name: Initialize PostgreSQL schemas
+        run: |
+          docker exec -i ${{ job.services.postgres.id }} \
+            psql -U uds_app \
+            -d universal_dashboard_db \
+            -v ON_ERROR_STOP=1 \
+            < scripts/init_schemas.sql
+
+      - name: Prepare Django test database
+        run: |
+          docker exec ${{ job.services.postgres.id }} \
+            psql -U uds_app \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -c "CREATE DATABASE test_universal_dashboard_db OWNER uds_app;"
+
+          docker exec -i ${{ job.services.postgres.id }} \
+            psql -U uds_app \
+            -d test_universal_dashboard_db \
+            -v ON_ERROR_STOP=1 \
+            < scripts/init_schemas.sql
+
+      - name: Check Django configuration
+        run: python manage.py check --database default
+
+      - name: Check missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Apply migrations
+        run: python manage.py migrate --noinput
+
+      - name: Run automated tests
+        run: python manage.py test --keepdb
