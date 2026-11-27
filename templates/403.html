@@ -1,0 +1,74 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Access Denied | Universal Dashboard Studio</title>
+
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+
+<body>
+
+    <main class="auth-wrapper">
+
+        <div class="auth-card error-card">
+
+            <div class="error-icon">!</div>
+
+            <div class="error-code">403</div>
+
+            <h1>Access Denied</h1>
+
+            <p class="error-description">
+                You do not have permission to access this page.
+                Please contact your administrator if you believe
+                this is an error.
+            </p>
+
+            {% if can_return_to_overview %}
+
+            <a href="{% url 'core:overview' %}"
+               class="error-button">
+                Back to Overview
+            </a>
+
+            {% endif %}
+
+            {% if request.user.is_authenticated %}
+
+            <form method="post" action="{% url 'accounts:logout' %}">
+
+                {% csrf_token %}
+
+                <button type="submit" class="error-secondary-button">
+                    Logout
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <a href="{% url 'accounts:login' %}"
+               class="error-button">
+                Sign In
+            </a>
+
+            {% endif %}
+
+            <div class="auth-footer">
+                Universal Dashboard Studio
+                &copy; {% now "Y" %}
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

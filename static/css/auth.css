@@ -143,3 +143,78 @@ body {
         padding: 26px;
     }
 }
+
+.error-card {
+    text-align: center;
+}
+
+.error-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 20px;
+    background: #fef2f2;
+    color: #dc2626;
+    border-radius: 50%;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.error-code {
+    color: #dc2626;
+    font-size: 48px;
+    font-weight: 700;
+}
+
+.error-card h1 {
+    margin: 10px 0;
+    font-size: 24px;
+}
+
+.error-description {
+    margin: 16px 0 26px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.error-button,
+.error-secondary-button {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    margin-top: 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.error-button {
+    background: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+}
+
+.error-button:hover {
+    background: #1d4ed8;
+}
+
+.error-secondary-button {
+    background: white;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.error-secondary-button:hover {
+    background: #f1f5f9;
+}
+
+.error-button:focus-visible,
+.error-secondary-button:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}

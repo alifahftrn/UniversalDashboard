@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -23,6 +24,13 @@ class AuthenticationTests(TestCase):
             password=cls.password,
             is_active=False,
         )
+
+        group, _ = Group.objects.get_or_create(
+            name="Admin"
+        )
+
+        cls.user.groups.add(group)
+        cls.inactive_user.groups.add(group)
 
     def test_login_page_accessible(self):
         response = self.client.get(

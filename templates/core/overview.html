@@ -41,51 +41,92 @@ Overview | Universal Dashboard Studio
 
 </div>
 
+{% if "data-manager" in allowed_pages %}
+
 <section class="panel">
 
     <div class="panel-heading">
+
         <h2>Getting Started</h2>
-        <p>Build your dashboard in four steps.</p>
+
+        <p>Explore your available workspace features.</p>
+
     </div>
 
     <div class="steps-grid">
 
+        {% if "database-connections" in allowed_pages %}
+
         <a href="{% url 'core:database-connections' %}"
            class="step-card">
+
             <span>01</span>
+
             <h3>Connect Data</h3>
+
             <p>Add an external database or data source.</p>
+
         </a>
+
+        {% endif %}
+
+        {% if "data-sources" in allowed_pages %}
 
         <a href="{% url 'core:data-sources' %}"
            class="step-card">
+
             <span>02</span>
+
             <h3>Extract Data</h3>
+
             <p>Store extracted data in the internal database.</p>
+
         </a>
+
+        {% endif %}
+
+        {% if "data-manager" in allowed_pages %}
 
         <a href="{% url 'core:data-manager' %}"
            class="step-card">
+
             <span>03</span>
+
             <h3>Transform Data</h3>
+
             <p>Clean, join and validate your datasets.</p>
+
         </a>
+
+        {% endif %}
+
+        {% if "visualization-builder" in allowed_pages %}
 
         <a href="{% url 'core:visualization-builder' %}"
            class="step-card">
+
             <span>04</span>
+
             <h3>Build Visualization</h3>
+
             <p>Create charts, KPI cards and dashboards.</p>
+
         </a>
+
+        {% endif %}
 
     </div>
 
 </section>
 
+{% endif %}
+
 <section class="panel">
 
     <div class="panel-heading">
+
         <h2>Recent Dashboards</h2>
+
     </div>
 
     <div class="empty-state">
@@ -99,7 +140,9 @@ Overview | Universal Dashboard Studio
 
         <a href="{% url 'core:my-dashboards' %}"
            class="button-primary">
+
             My Dashboards
+
         </a>
 
     </div>

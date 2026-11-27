@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import render
 
-
+from apps.accounts.access import get_allowed_pages
 PAGES = {
     "overview": {
         "title": "Overview",
@@ -67,10 +68,16 @@ PAGES = {
 }
 
 
-def get_page_context(page_key):
-
+def get_page_context(page_key, user):
     if page_key not in PAGES:
         raise Http404("Page not found.")
+
+    allowed_pages = get_allowed_pages(user)
+
+    if page_key not in allowed_pages:
+        raise PermissionDenied(
+            "You do not have permission to access this page."
+        )
 
     page = PAGES[page_key]
 
@@ -82,10 +89,12 @@ def get_page_context(page_key):
             "url_name": f"core:{key}",
         }
         for key, value in PAGES.items()
+        if key in allowed_pages
     ]
 
     return {
         "navigation": navigation,
+        "allowed_pages": allowed_pages,
         "active_page": page_key,
         "page_title": page["title"],
         "page_icon": page["icon"],
@@ -97,7 +106,10 @@ def get_page_context(page_key):
 @login_required
 def overview(request):
 
-    context = get_page_context("overview")
+    context = get_page_context(
+    "overview",
+    request.user,
+)
 
     context["cards"] = [
         {
@@ -127,7 +139,25 @@ def overview(request):
 
 @login_required
 def placeholder(request, page):
+    context = get_page_context(
+        page,
+        request.user,
+    )
 
-    context = get_page_context(page)
+    return render(
+        request,
+        "core/placeholder.html",
+        context,
+    )
 
-    return render(request, "core/placeholder.html", context)
+def permission_denied_view(request, exception):
+    allowed_pages = get_allowed_pages(request.user)
+
+    return render(
+        request,
+        "403.html",
+        {
+            "can_return_to_overview": "overview" in allowed_pages,
+        },
+        status=403,
+    )

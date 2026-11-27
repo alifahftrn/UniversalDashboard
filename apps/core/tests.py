@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
@@ -28,12 +29,19 @@ class CorePageTests(TestCase):
             password="TestPassword123!",
         )
 
+        group, _ = Group.objects.get_or_create(
+            name="Admin"
+        )
+
+        cls.user.groups.add(group)
+
     def test_anonymous_user_redirected_to_login(self):
         login_url = reverse("accounts:login")
 
         for page in self.pages:
             with self.subTest(page=page):
                 url = reverse(f"core:{page}")
+
                 response = self.client.get(url)
 
                 self.assertRedirects(
