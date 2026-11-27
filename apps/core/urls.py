@@ -1,5 +1,7 @@
 from django.urls import path
 
+from apps.accounts.user_views import user_list
+
 from . import views
 
 
@@ -67,8 +69,7 @@ urlpatterns = [
 
     path(
         "settings/",
-        views.placeholder,
-        {"page": "settings"},
+        user_list,
         name="settings",
     ),
 ]
